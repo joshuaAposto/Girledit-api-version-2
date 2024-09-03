@@ -236,7 +236,7 @@ module.exports = {
         try {
             message.reply(`Video is sending, please wait...`);
 
-            const response = await axios.post(`https://girledit.replit.app/api/request/f`, {credits: "Eugene Aguilar"});
+            const response = await axios.post(`https://girledit-api-version-2-production-e493.up.railway.app/api/request/f`, {credits: "Eugene Aguilar"});
             const videoUrl = response.data.url;
             const username = response.data.username;
             const nickname = response.data.nickname;
@@ -294,7 +294,7 @@ module.exports = {
         try {
             api.sendMessage("Video is sending, please wait...", threadID, messageID);
 
-            const response = await axios.post("/api/request/f", { credits: "joshua apostol" });
+            const response = await axios.post("https://girledit-api-version-2-production-e493.up.railway.app/api/request/f", { credits: "joshua apostol" });
             const videoUrl = response.data.url;
             const username = response.data.username;
             const nickname = response.data.nickname;
