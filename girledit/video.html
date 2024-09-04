@@ -1,147 +1,153 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Random Video</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(135deg, #4a90e2, #50e3c2);
-        color: #333;
-        text-align: center;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Video</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: #fff;
+    }
 
-      #video-container {
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 20px;
-        border-radius: 15px;
-        margin: 40px auto;
-        max-width: 800px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
+    #video-container {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 50px auto;
+      text-align: center;
+      max-width: 800px;
+      max-height: 500px;
+      overflow: hidden;
+    }
 
-      h1, h2 {
-        color: #333;
-        margin: 20px 0;
-      }
+    .documentation-button,
+    .next-video,
+    .contact-button {
+      display: inline-block;
+      width: 150px;
+      margin: 20px 10px;
+      background-color: #222;
+      color: #fff;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
 
-      p {
-        font-size: 18px;
-        margin: 10px 0;
-      }
+    .documentation-button:hover,
+    .next-video:hover,
+    .contact-button:hover {
+      background-color: #444;
+    }
 
-      .documentation-button, .contact-button, .next-video {
-        display: inline-block;
-        background-color: #007bff;
-        color: white;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 5px;
-        text-decoration: none;
-        margin: 10px;
-        transition: background-color 0.3s;
-      }
+    h1#video-title {
+      color: #ffcc00; /* Changed text color */
+    }
 
-      .documentation-button {
-        background-color: #28a745;
-      }
+    h1,
+    h2,
+    p,
+    .username,
+    .nickname {
+      text-align: center;
+    }
 
-      .contact-button {
-        background-color: #17a2b8;
-      }
+    .wave {
+      background: rgba(255, 255, 255, 0.1);
+      animation: wave 4s ease-in-out infinite alternate;
+    }
 
-      .next-video {
-        background-color: #ffc107;
-      }
+    button.next-video {
+      background-color: orange;
+    }
 
-      .documentation-button:hover, .contact-button:hover, .next-video:hover {
-        background-color: #0056b3;
-      }
+    #video {
+      width: 320px;
+      height: 240px;
+      margin: 0 auto;
+      display: block;
+    }
 
-      button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
+    @keyframes wave {
+      0% {
+        transform: scaleY(1);
       }
-
-      button:hover {
-        background-color: #0056b3;
+      50% {
+        transform: scaleY(1.5);
       }
-
-      #video {
-        width: 100%;
-        max-width: 640px;
-        height: auto;
-        border-radius: 10px;
+      100% {
+        transform: scaleY(1);
       }
-    </style>
-  </head>
-  <body>
-    <h1 id="video-title">Random Video</h1>
-    <p id="totalvids">Loading...</p>
+    }
+  </style>
+</head>
+<body>
+  <h1 id="video-title">Random Video</h1>
+  <p id="totalvids">Loading...</p>
+  <div id="video-scroll-container">
+    <!-- Added wrapping div for scrolling -->
     <div id="video-container">
+      <p class="username">Username:</p>
       <video
         id="video"
+        width="320"
+        height="240"
         autoplay
         loop
         controls
       ></video>
+      <button class="documentation-button">
+        <a href="/docs" style="color: #fff; text-decoration: none;">Documentation</a>
+      </button>
+      <button class="next-video" onclick="fetchRandomVideo()">Next Video</button>
     </div>
+  </div>
 
-    <button class="next-video" onclick="fetchRandomVideo()">Next Video</button>
+  <div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
 
-    <a href="/docs" class="documentation-button">Documentation</a>
-
-    <h2>Contact me on Facebook</h2>
-    <a href="https://www.facebook.com/profile.php?id=100088690249020" class="contact-button">Contact</a>
-
-    <div id="video-info">
-      <p class="username">Username:</p>
-      <p class="nickname">Nickname:</p>
-    </div>
-
-    <script>
-      async function fetchRandomVideo() {
-        try {
-          let response = await fetch("/api/request/f", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              credits: "joshua apostol",
-            }),
-          });
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          let data = await response.json();
-          let videoUrl = data.url;
-          let username = data.username;
-          let nickname = data.nickname;
-          let total = data.totalvids;
-
-          document.getElementById("video").src = videoUrl;
-          document.getElementById("totalvids").textContent =
-            "Total Videos: " + total;
-          document.querySelector(".username").textContent =
-            "Username: " + username;
-          document.querySelector(".nickname").textContent =
-            "Nickname: " + nickname;
-        } catch (error) {
-          console.error("Error fetching random video:", error);
+  <script>
+    async function fetchRandomVideo() {
+      try {
+        let response = await fetch("/api/request/f", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credits: "joshua apostol",
+          }),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      }
+        let data = await response.json();
+        let videoUrl = data.url;
+        let username = data.username;
+        let total = data.totalvids;
 
-      fetchRandomVideo();
-    </script>
-  </body>
+        document.getElementById("video").src = videoUrl;
+        document.getElementById("totalvids").textContent =
+          "Total Videos: " + total;
+        document.querySelector(".username").textContent =
+          "Username: " + username;
+      } catch (error) {
+        console.error("Error fetching random video:", error);
+      }
+    }
+
+    fetchRandomVideo();
+  </script>
+</body>
 </html>
