@@ -2,6 +2,7 @@ const fs = require("fs");
 const express = require("express");
 const axios = require("axios");
 const path = require("path");
+const cors = require("cors");
 const app = express();
 const port = 3000;
 
@@ -12,6 +13,8 @@ const GITHUB_FILE_PATH = process.env.GITHUB_FILE_PATH;
 const GIRL_VIDS_PATH = path.join(__dirname, "girledit/GirlVids/girl.json");
 const GOD_ARRAY = ["61554201747411"];
 const STATIC_DIR = path.join(__dirname, "girledit");
+
+app.use(cors());
 
 app.use(express.json());
 app.use(express.static(STATIC_DIR));
