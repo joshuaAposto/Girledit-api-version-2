@@ -5,8 +5,11 @@ const path = require("path");
 const app = express();
 const port = 3000;
 
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN; 
+const GITHUB_REPO = process.env.GITHUB_REPO; 
+const GITHUB_FILE_PATH = process.env.GITHUB_FILE_PATH; 
+
 const GIRL_VIDS_PATH = path.join(__dirname, "girledit/GirlVids/girl.json");
-const CREDITS = ["joshua apostol"];
 const GOD_ARRAY = ["61554201747411"];
 const STATIC_DIR = path.join(__dirname, "girledit");
 
@@ -30,12 +33,6 @@ app.get("/api/link", (req, res) => {
 });
 
 app.post("/api/request/f", async (req, res) => {
-  const { credits } = req.body;
-
-  if (!CREDITS.includes(credits)) {
-    return res.status(400).json({ error: "Invalid credits." });
-  }
-
   try {
     const fileContent = fs.readFileSync(GIRL_VIDS_PATH, "utf-8");
     const links = JSON.parse(fileContent);
@@ -78,12 +75,53 @@ app.post("/api/add/girl", async (req, res) => {
     data.girl.push(link);
     fs.writeFileSync(GIRL_VIDS_PATH, JSON.stringify(data, null, 4));
 
+    await uploadToGitHub(data);
+
     res.json({ message: `Successfully added link: ${link}` });
   } catch (error) {
     console.error("Error adding TikTok link:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
+async function uploadToGitHub(data) {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  const fileContent = Buffer.from(JSON.stringify(data, null, 4)).toString('base64');
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    await axios.put(url, {
+      message: "Update girl.json with new TikTok link",
+      content: fileContent,
+      sha: response.data.sha,
+    }, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      await axios.put(url, {
+        message: "Create girl.json with initial TikTok links",
+        content: fileContent,
+      }, {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+    } else {
+      throw new Error("Failed to upload to GitHub: " + error.message);
+    }
+  }
+}
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
